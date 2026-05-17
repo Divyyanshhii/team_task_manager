@@ -8,6 +8,10 @@ function Dashboard() {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [newProjectName, setNewProjectName] = useState('');
+  
+  const [showTaskForm, setShowTaskForm] = useState(false);
+  const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [newTaskPriority, setNewTaskPriority] = useState('Medium');
 
   const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -31,6 +35,7 @@ function Dashboard() {
   useEffect(() => {
     if (selectedProject) {
       fetchTasks(selectedProject._id);
+      setShowTaskForm(false); 
     }
   }, [selectedProject]);
 
@@ -74,6 +79,29 @@ function Dashboard() {
     }
   };
 
+  const createTask = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.post(`${API_URL}/api/tasks`, 
+        { 
+          title: newTaskTitle, 
+          priority: newTaskPriority,
+          projectId: selectedProject._id, // ALIGNED WITH BACKEND req.body
+          status: 'To Do'
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      setTasks([...tasks, res.data]);
+      setNewTaskTitle('');
+      setNewTaskPriority('Medium');
+      setShowTaskForm(false);
+    } catch (error) {
+      console.error('Error creating task', error);
+      alert(error.response?.data?.error || 'Failed to create task');
+    }
+  };
+
   const updateTaskStatus = async (taskId, newStatus) => {
     try {
       await axios.patch(`${API_URL}/api/tasks/${taskId}`, 
@@ -86,12 +114,9 @@ function Dashboard() {
     }
   };
 
-  // --- THE LOGOUT FUNCTION ---
   const handleLogout = () => {
-    // 1. Destroy the saved credentials
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    // 2. Kick them back to the login page
     navigate('/');
   };
 
@@ -99,8 +124,6 @@ function Dashboard() {
 
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-6">
-      
-      {/* --- TOP NAVBAR WITH LOGOUT --- */}
       <div className="flex justify-between items-center bg-white p-4 rounded shadow mb-6">
         <h1 className="text-2xl font-bold text-blue-600">Dashboard</h1>
         <div className="flex items-center gap-4">
@@ -160,32 +183,76 @@ function Dashboard() {
                   </p>
                 </div>
                 {selectedProject.admin._id === user.id && (
-                   <button className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
-                     + New Task
+                   <button 
+                     onClick={() => setShowTaskForm(!showTaskForm)}
+                     className={`${showTaskForm ? 'bg-gray-500 hover:bg-gray-600' : 'bg-green-500 hover:bg-green-600'} text-white px-4 py-2 rounded transition`}
+                   >
+                     {showTaskForm ? 'Cancel' : '+ New Task'}
                    </button>
                 )}
               </div>
+
+              {/* Add Task Form */}
+              {showTaskForm && (
+                <form onSubmit={createTask} className="bg-white p-4 rounded shadow mb-6 flex flex-col md:flex-row gap-4 items-center border-l-4 border-green-500">
+                  <input 
+                    type="text" 
+                    placeholder="Task Title (e.g., Update database schema)" 
+                    className="flex-1 p-2 border rounded w-full"
+                    value={newTaskTitle}
+                    onChange={(e) => setNewTaskTitle(e.target.value)}
+                    required
+                  />
+                  <select 
+                    className="p-2 border rounded w-full md:w-auto bg-white"
+                    value={newTaskPriority}
+                    onChange={(e) => setNewTaskPriority(e.target.value)}
+                  >
+                    <option value="Low">Low Priority</option>
+                    <option value="Medium">Medium Priority</option>
+                    <option value="High">High Priority</option>
+                  </select>
+                  <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 w-full md:w-auto font-semibold">
+                    Add
+                  </button>
+                </form>
+              )}
 
               {/* Kanban Board */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {['To Do', 'In Progress', 'Done'].map(status => (
                   <div key={status} className="bg-gray-200 p-4 rounded min-h-[300px]">
                     <h3 className="font-bold mb-4 text-gray-700 border-b border-gray-300 pb-2">{status}</h3>
-                    {tasks.filter(t => t.status === status).map(task => (
-                      <div key={task._id} className="bg-white p-3 rounded shadow mb-3 border-l-4 border-blue-500">
-                        <h4 className="font-semibold">{task.title}</h4>
-                        <p className="text-xs text-gray-500 mb-2">Priority: {task.priority}</p>
-                        <select 
-                          className="text-xs border rounded p-1 w-full"
-                          value={task.status}
-                          onChange={(e) => updateTaskStatus(task._id, e.target.value)}
-                        >
-                          <option value="To Do">To Do</option>
-                          <option value="In Progress">In Progress</option>
-                          <option value="Done">Done</option>
-                        </select>
-                      </div>
-                    ))}
+                    {tasks.filter(t => t.status === status).map(task => {
+                      
+                      // ALIGNED WITH BACKEND RBAC: Check if user is Admin or Assigned User
+                      const isProjectAdmin = selectedProject.admin._id === user.id;
+                      const isAssignedUser = task.assignedTo && task.assignedTo._id === user.id;
+                      const canEdit = isProjectAdmin || isAssignedUser;
+
+                      return (
+                        <div key={task._id} className="bg-white p-3 rounded shadow mb-3 border-l-4 border-blue-500">
+                          <h4 className="font-semibold">{task.title}</h4>
+                          <p className="text-xs text-gray-500 mb-2">Priority: {task.priority}</p>
+                          
+                          {/* Disable the dropdown visually if they lack backend permissions */}
+                          <select 
+                            className={`text-xs border rounded p-1 w-full ${!canEdit ? 'bg-gray-100 cursor-not-allowed opacity-70' : 'bg-white cursor-pointer'}`}
+                            value={task.status}
+                            onChange={(e) => updateTaskStatus(task._id, e.target.value)}
+                            disabled={!canEdit}
+                          >
+                            <option value="To Do">To Do</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Done">Done</option>
+                          </select>
+                          
+                          {!canEdit && (
+                            <p className="text-[10px] text-red-400 mt-1 italic">Not authorized to move</p>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 ))}
               </div>
