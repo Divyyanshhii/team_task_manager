@@ -12,6 +12,7 @@ function Login() {
     e.preventDefault();
     try {
       const response = await axios.post('/api/auth/login', { email, password });
+      console.log("BACKEND PAYLOAD:", response.data);
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       navigate('/dashboard');
