@@ -9,7 +9,14 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors());
+// Make sure this is placed BEFORE your routes!
+app.use(cors({
+    origin: [
+        'http://localhost:5173', // Allows local testing
+        'https://teamtaskmanager-production-ef64.up.railway.app' // Allows your live Railway frontend
+    ],
+    credentials: true
+}));
 app.use(express.json());
 import projectRoutes from './routes/projects.js';
 import taskRoutes from './routes/tasks.js';
