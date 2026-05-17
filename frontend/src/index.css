@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
-body {
-  background-color: #f3f4f6;
+html, body, #root {
+  background-color: #020617; /* Matches slate-950 canvas */
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  color-scheme: dark; /* Sets default scrollbars and native inputs to dark mode */
 }
