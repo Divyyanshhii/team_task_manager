@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 function Dashboard() {
@@ -8,22 +9,29 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [newProjectName, setNewProjectName] = useState('');
 
+  // Initialize navigation
+  const navigate = useNavigate();
+
+  // Safely grab the token and user data from local storage
   const token = localStorage.getItem('token');
-  // This tells JavaScript: "If you find nothing, or if it's broken, just use 'null' instead of crashing."
   const storedUser = localStorage.getItem('user');
   const user = storedUser && storedUser !== "undefined" ? JSON.parse(storedUser) : null;
 
-  // Then, if the user doesn't exist, redirect them to login
-  if (!user) {
-      navigate('/');
-  }
-
-  // Fetch Projects on load
+  // SECURITY BOUNCER: If there is no user or token, kick them to login immediately
   useEffect(() => {
-    fetchProjects();
-  }, []);
+    if (!user || !token) {
+      navigate('/');
+    }
+  }, [user, token, navigate]);
 
-  // Fetch Tasks when a project is selected
+  // Fetch Projects on initial load (only if authenticated)
+  useEffect(() => {
+    if (user && token) {
+      fetchProjects();
+    }
+  }, [user, token]);
+
+  // Fetch Tasks whenever a different project is selected
   useEffect(() => {
     if (selectedProject) {
       fetchTasks(selectedProject._id);
@@ -83,7 +91,8 @@ function Dashboard() {
     }
   };
 
-  if (loading) return <div className="text-center mt-10">Loading dashboard...</div>;
+  // Prevent the dashboard from flashing while it checks credentials
+  if (loading || !user) return <div className="text-center mt-10">Loading dashboard...</div>;
 
   return (
     <div className="flex flex-col md:flex-row gap-6 mt-6">
