@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -17,8 +17,12 @@ function Dashboard() {
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
   const token = localStorage.getItem('token');
-  const storedUser = localStorage.getItem('user');
-  const user = storedUser && storedUser !== "undefined" ? JSON.parse(storedUser) : null;
+  
+  // THE FIX: useMemo prevents React from endlessly recreating this object on every click
+  const user = useMemo(() => {
+    const storedUser = localStorage.getItem('user');
+    return storedUser && storedUser !== "undefined" ? JSON.parse(storedUser) : null;
+  }, []);
 
   useEffect(() => {
     if (!user || !token) {
@@ -86,7 +90,7 @@ function Dashboard() {
         { 
           title: newTaskTitle, 
           priority: newTaskPriority,
-          projectId: selectedProject._id, // ALIGNED WITH BACKEND req.body
+          projectId: selectedProject._id, 
           status: 'To Do'
         },
         { headers: { Authorization: `Bearer ${token}` } }
@@ -225,7 +229,6 @@ function Dashboard() {
                     <h3 className="font-bold mb-4 text-gray-700 border-b border-gray-300 pb-2">{status}</h3>
                     {tasks.filter(t => t.status === status).map(task => {
                       
-                      // ALIGNED WITH BACKEND RBAC: Check if user is Admin or Assigned User
                       const isProjectAdmin = selectedProject.admin._id === user.id;
                       const isAssignedUser = task.assignedTo && task.assignedTo._id === user.id;
                       const canEdit = isProjectAdmin || isAssignedUser;
@@ -235,7 +238,6 @@ function Dashboard() {
                           <h4 className="font-semibold">{task.title}</h4>
                           <p className="text-xs text-gray-500 mb-2">Priority: {task.priority}</p>
                           
-                          {/* Disable the dropdown visually if they lack backend permissions */}
                           <select 
                             className={`text-xs border rounded p-1 w-full ${!canEdit ? 'bg-gray-100 cursor-not-allowed opacity-70' : 'bg-white cursor-pointer'}`}
                             value={task.status}
