@@ -25,7 +25,7 @@ function Dashboard() {
 
   const fetchProjects = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/projects', {
+      const res = await axios.get('/api/projects', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setProjects(res.data);
@@ -39,7 +39,7 @@ function Dashboard() {
 
   const fetchTasks = async (projectId) => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/tasks/project/${projectId}`, {
+      const res = await axios.get(`/api/tasks/project/${projectId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setTasks(res.data);
@@ -51,7 +51,7 @@ function Dashboard() {
   const createProject = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:5000/api/projects', 
+      const res = await axios.post('/api/projects', 
         { name: newProjectName, description: 'New Project' },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -65,7 +65,7 @@ function Dashboard() {
 
   const updateTaskStatus = async (taskId, newStatus) => {
     try {
-      await axios.patch(`http://localhost:5000/api/tasks/${taskId}`, 
+      await axios.patch(`/api/tasks/${taskId}`, 
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
