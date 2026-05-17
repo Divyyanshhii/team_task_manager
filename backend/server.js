@@ -7,6 +7,7 @@ import cors from 'cors';
 import authRoutes from './routes/auth.js';
 import projectRoutes from './routes/projects.js';
 import taskRoutes from './routes/tasks.js';
+import userRoutes from './routes/users.js'; // <-- NEW USERS ROUTE
 
 dotenv.config();
 const app = express();
@@ -31,7 +32,8 @@ app.get('/', (req, res) => {
 // 5. API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
-app.use('/api/tasks', taskRoutes); // Only declared once!
+app.use('/api/tasks', taskRoutes); 
+app.use('/api/users', userRoutes); // <-- NEW USERS ROUTE ENABLED
 
 // 6. Database Connection
 mongoose.connect(process.env.MONGO_URI)
