@@ -191,8 +191,9 @@ function Dashboard() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
               </svg>
             </div>
+            {/* Reverted Name Back to Team Task Manager */}
             <h1 className="text-xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-slate-400 tracking-tight">
-              Nexus<span className="text-blue-500 font-medium">Task</span>
+              Team Task Manager
             </h1>
           </div>
           <div className="flex items-center gap-5">
@@ -212,10 +213,10 @@ function Dashboard() {
         </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+      <nav className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
         <div className="flex flex-col lg:flex-row gap-8">
           
-          {/* Glassmorphic Project Sidebar Container */}
+          {/* Workspaces Sidebar */}
           <section className="w-full lg:w-1/4 flex flex-col gap-6">
             <div className="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-5 shadow-xl backdrop-blur-sm">
               <h2 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
@@ -253,11 +254,10 @@ function Dashboard() {
             </div>
           </section>
 
-          {/* Core App Display Panel */}
+          {/* Kanban Display */}
           <section className="w-full lg:w-3/4 flex flex-col gap-6">
             {selectedProject ? (
               <>
-                {/* Advanced Workspace Header Card */}
                 <div className="bg-gradient-to-b from-slate-900/60 to-slate-900/30 border border-slate-800/60 rounded-2xl p-6 shadow-xl backdrop-blur-sm">
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-5">
                     <div>
@@ -281,7 +281,6 @@ function Dashboard() {
                     )}
                   </div>
 
-                  {/* Add Active Team Members (Admin Interface) */}
                   {selectedProject.admin._id === user.id && (
                     <form onSubmit={addMemberToProject} className="flex gap-2.5 bg-slate-950/40 p-2 border border-slate-800/80 rounded-xl">
                       <select 
@@ -300,7 +299,7 @@ function Dashboard() {
                   )}
                 </div>
 
-                {/* Dashboard Modular Analytics Widgets */}
+                {/* Modular Analytics */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="bg-slate-900/30 border border-slate-800/60 rounded-2xl p-4 shadow-lg text-center relative overflow-hidden group">
                     <div className="absolute inset-x-0 bottom-0 h-0.5 bg-blue-500/40 group-hover:bg-blue-500 transition-colors" />
@@ -324,39 +323,39 @@ function Dashboard() {
                   </div>
                 </div>
 
-                {/* Glassmorphic Task Architect Engine Form */}
+                {/* Task Form */}
                 {showTaskForm && (
                   <form onSubmit={createTask} className="bg-slate-900/50 border-l-4 border-l-blue-500 border border-slate-800/80 rounded-2xl p-5 shadow-2xl flex flex-col gap-4 animate-fadeIn">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                       <div className="md:col-span-2">
-                        <input type="text" placeholder="Task architectural title..." className="w-full p-2.5 bg-slate-950/60 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-blue-500/50" value={newTaskTitle} onChange={(e) => setNewTaskTitle(e.target.value)} required />
+                        <input type="text" placeholder="Task title..." className="w-full p-2.5 bg-slate-950/60 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-blue-500/50" value={newTaskTitle} onChange={(e) => setNewTaskTitle(e.target.value)} required />
                       </div>
                       <div>
                         <input type="date" className="w-full p-2.5 bg-slate-950/60 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-blue-500/50 text-slate-400" value={newTaskDueDate} onChange={(e) => setNewTaskDueDate(e.target.value)} />
                       </div>
                     </div>
-                    <textarea placeholder="Describe explicit task protocols and performance metrics..." className="w-full p-2.5 bg-slate-950/60 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-blue-500/50" rows="2" value={newTaskDescription} onChange={(e) => setNewTaskDescription(e.target.value)} />
+                    <textarea placeholder="Describe task metrics and expectations..." className="w-full p-2.5 bg-slate-950/60 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-blue-500/50" rows="2" value={newTaskDescription} onChange={(e) => setNewTaskDescription(e.target.value)} />
                     
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-center">
                       <select className="p-2.5 bg-slate-950/60 border border-slate-800 rounded-xl text-sm text-slate-300 focus:outline-none focus:border-blue-500/50" value={newTaskAssignee} onChange={(e) => setNewTaskAssignee(e.target.value)}>
-                        <option value="" className="bg-slate-950">Allocate assignment status...</option>
+                        <option value="" className="bg-slate-950">Allocate assignment...</option>
                         {selectedProject.members.map(member => (
                           <option key={member._id} value={member._id} className="bg-slate-950">{member.name}</option>
                         ))}
                       </select>
                       <select className="p-2.5 bg-slate-950/60 border border-slate-800 rounded-xl text-sm text-slate-300 focus:outline-none focus:border-blue-500/50" value={newTaskPriority} onChange={(e) => setNewTaskPriority(e.target.value)}>
-                        <option value="Low" className="bg-slate-950">Low Urgency</option>
-                        <option value="Medium" className="bg-slate-950">Standard Urgency</option>
-                        <option value="High" className="bg-slate-950">Critical Urgency</option>
+                        <option value="Low" className="bg-slate-950">Low Priority</option>
+                        <option value="Medium" className="bg-slate-950">Medium Priority</option>
+                        <option value="High" className="bg-slate-950">High Priority</option>
                       </select>
                       <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl font-bold text-sm tracking-wide shadow-lg shadow-blue-600/15 transition-all">
-                        Commit Pipeline Task
+                        Commit Task
                       </button>
                     </div>
                   </form>
                 )}
 
-                {/* Ultimate Production Kanban Array */}
+                {/* Kanban Columns */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                   {['To Do', 'In Progress', 'Done'].map(status => {
                     const statusConfig = {
@@ -381,7 +380,6 @@ function Dashboard() {
                             const canEdit = isProjectAdmin || isAssignedUser;
                             const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && task.status !== 'Done';
 
-                            // Priority styling configurations
                             const priorityBadge = {
                               'High': 'bg-rose-500/10 text-rose-400 border-rose-500/20',
                               'Medium': 'bg-amber-500/10 text-amber-400 border-amber-500/20',
@@ -424,7 +422,7 @@ function Dashboard() {
                                   onChange={(e) => updateTaskStatus(task._id, e.target.value)}
                                   disabled={!canEdit}
                                 >
-                                  <option value="To Do" className="bg-slate-950">Pipeline Backlog</option>
+                                  <option value="To Do" className="bg-slate-950">Backlog Pipeline</option>
                                   <option value="In Progress" className="bg-slate-950">Active Execution</option>
                                   <option value="Done" className="bg-slate-950">Production Clear</option>
                                 </select>
@@ -462,7 +460,7 @@ function Dashboard() {
           </section>
 
         </div>
-      </main>
+      </nav>
     </div>
   );
 }
