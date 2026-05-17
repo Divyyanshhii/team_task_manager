@@ -9,8 +9,9 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [newProjectName, setNewProjectName] = useState('');
 
-  // Initialize navigation
+  // Initialize navigation and URL
   const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
   // Safely grab the token and user data from local storage
   const token = localStorage.getItem('token');
@@ -40,7 +41,7 @@ function Dashboard() {
 
   const fetchProjects = async () => {
     try {
-      const res = await axios.get('/api/projects', {
+      const res = await axios.get(`${API_URL}/api/projects`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setProjects(res.data);
@@ -54,7 +55,7 @@ function Dashboard() {
 
   const fetchTasks = async (projectId) => {
     try {
-      const res = await axios.get(`/api/tasks/project/${projectId}`, {
+      const res = await axios.get(`${API_URL}/api/tasks/project/${projectId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setTasks(res.data);
@@ -66,7 +67,7 @@ function Dashboard() {
   const createProject = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('/api/projects', 
+      const res = await axios.post(`${API_URL}/api/projects`, 
         { name: newProjectName, description: 'New Project' },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -80,7 +81,7 @@ function Dashboard() {
 
   const updateTaskStatus = async (taskId, newStatus) => {
     try {
-      await axios.patch(`/api/tasks/${taskId}`, 
+      await axios.patch(`${API_URL}/api/tasks/${taskId}`, 
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );

@@ -10,9 +10,12 @@ function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    // Explicitly grab the backend URL
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
     try {
-      const response = await axios.post('/api/auth/login', { email, password });
-      console.log("BACKEND PAYLOAD:", response.data);
+      const response = await axios.post(`${API_URL}/api/auth/login`, { email, password });
+      
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       navigate('/dashboard');
