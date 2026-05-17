@@ -9,7 +9,14 @@ function Dashboard() {
   const [newProjectName, setNewProjectName] = useState('');
 
   const token = localStorage.getItem('token');
-  const user = JSON.parse(localStorage.getItem('user'));
+  // This tells JavaScript: "If you find nothing, or if it's broken, just use 'null' instead of crashing."
+  const storedUser = localStorage.getItem('user');
+  const user = storedUser && storedUser !== "undefined" ? JSON.parse(storedUser) : null;
+
+  // Then, if the user doesn't exist, redirect them to login
+  if (!user) {
+      navigate('/');
+  }
 
   // Fetch Projects on load
   useEffect(() => {
